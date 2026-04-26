@@ -1,0 +1,35 @@
+
+name: perf-register-voter
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  k6-perf:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install k6
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gnupg2 ca-certificates
+          curl -s https://dl.k6.io/key.gpg | sudo gpg --dearmor -o /usr/share/keyrings/k6-archive-keyring.gpg
+          echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+          sudo apt-get update
+          sudo apt-get install -y k6
+      - name: Baseline
+        env:
+          BASE_URL: ${{ secrets.PERF_BASE_URL }}
+        run: |
+          k6 run perf/scripts/register_voter_k6.js             -o json=perf/results/baseline.json             --env BASE_URL="${BASE_URL}"             --env SCENARIO="baseline"
+      - name: Load
+        env:
+          BASE_URL: ${{ secrets.PERF_BASE_URL }}
+        run: |
+          k6 run perf/scripts/register_voter_k6.js             -o json=perf/results/load.json             --env BASE_URL="${BASE_URL}"             --env SCENARIO="load"
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: perf-register-voter-results
+          path: perf/results/**
