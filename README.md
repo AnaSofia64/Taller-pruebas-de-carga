@@ -4,7 +4,7 @@
 **Universidad de La Sabana - Maestria en Ingenieria de Software**
 
 ## Integrantes
-*Ana Sofia Rodriguez y Juan Camilo Silva*
+*Ana Sofia Rodriguez, Juan Camilo Silva y Santiago Barrera*
 
 ---
 
